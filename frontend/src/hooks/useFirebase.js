@@ -138,6 +138,111 @@ export const useFirebase = () => {
       throw error;
     }
   };
+  
+  const createSession = async (groupId, sessionData) => {
+    if (!user) throw new Error('Not authenticated');
+    
+    try {
+      const groupRef = doc(db, `users/${user.uid}/groups/${groupId}`);
+      const group = groups.find(g => g.id === groupId);
+      if (!group) throw new Error('Group not found');
+
+      const updatedSessions = [...(group.sessions || []), sessionData];
+      await updateDoc(groupRef, { sessions: updatedSessions });
+    } catch (error) {
+      console.error('Error creating session:', error);
+      setError(error);
+      throw error;
+    }
+  };
+  
+  const updateSession = async (groupId, sessionId, sessionData) => {
+    if (!user) throw new Error('Not authenticated');
+    
+    try {
+      const groupRef = doc(db, `users/${user.uid}/groups/${groupId}`);
+      const group = groups.find(g => g.id === groupId);
+      if (!group) throw new Error('Group not found');
+  
+      const updatedSessions = group.sessions.map(session =>
+        session.id === sessionId ? { ...session, ...sessionData } : session
+      );
+  
+      await updateDoc(groupRef, {
+        sessions: updatedSessions
+      });
+      
+      console.log('Session updated successfully:', sessionData); // Add logging
+    } catch (error) {
+      console.error('Error updating session:', error);
+      throw error;
+    }
+  };
+  
+  const clearSessionEndAmounts = async (groupId, sessionId) => {
+    if (!user) throw new Error('Not authenticated');
+    
+    try {
+      const groupRef = doc(db, `users/${user.uid}/groups/${groupId}`);
+      const group = groups.find(g => g.id === groupId);
+      if (!group) throw new Error('Group not found');
+  
+      const updatedSessions = (group.sessions || []).map(session => {
+        if (session.id === sessionId) {
+          const updatedPlayers = session.players.map(player => ({
+            ...player,
+            endAmount: null
+          }));
+          return { ...session, players: updatedPlayers };
+        }
+        return session;
+      });
+  
+      await updateDoc(groupRef, { sessions: updatedSessions });
+    } catch (error) {
+      console.error('Error clearing end amounts:', error);
+      setError(error);
+      throw error;
+    }
+  };
+  
+  const clearSessionPlayers = async (groupId, sessionId) => {
+    if (!user) throw new Error('Not authenticated');
+    
+    try {
+      const groupRef = doc(db, `users/${user.uid}/groups/${groupId}`);
+      const group = groups.find(g => g.id === groupId);
+      if (!group) throw new Error('Group not found');
+  
+      const updatedSessions = (group.sessions || []).map(session =>
+        session.id === sessionId ? { ...session, players: [] } : session
+      );
+  
+      await updateDoc(groupRef, { sessions: updatedSessions });
+    } catch (error) {
+      console.error('Error clearing players:', error);
+      setError(error);
+      throw error;
+    }
+  };
+
+
+  const deleteSession = async (groupId, sessionId) => {
+    if (!user) throw new Error('Not authenticated');
+    
+    try {
+      const groupRef = doc(db, `users/${user.uid}/groups/${groupId}`);
+      const group = groups.find(g => g.id === groupId);
+      if (!group) throw new Error('Group not found');
+
+      const updatedSessions = group.sessions.filter(session => session.id !== sessionId);
+      await updateDoc(groupRef, { sessions: updatedSessions });
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      throw error;
+    }
+  };
+  
 
   return {
     groups,
@@ -147,6 +252,11 @@ export const useFirebase = () => {
     updateGroup,
     deleteGroup,
     addPlayer,
-    updatePlayer
+    updatePlayer,
+    createSession,
+    updateSession,
+    clearSessionEndAmounts,
+    clearSessionPlayers,
+    deleteSession
   };
 };
