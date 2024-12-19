@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import PokerTableDisplay from './components/PokerTableDisplay';
 import EndAmountTracker from './components/EndAmountTracker';
 import { useFirebase } from './hooks/useFirebase';
+import { Auth } from './components/Auth';
+import {auth } from './utils/firebase';
 
 function App() {
+  const [user, setUser] = useState(null);
   const [groupName, setGroupName] = useState('');
-  const { groups, loading, error, createGroup, updateGroup, addPlayer, updatePlayer } = useFirebase();e
+  const { groups, loading, createGroup, addPlayer, updatePlayer } = useFirebase();
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [playerName, setPlayerName] = useState('');
   const [globalBuyInAmount, setGlobalBuyInAmount] = useState('100');
@@ -13,6 +16,29 @@ function App() {
   const [showResults, setShowResults] = useState(false);
   const [payoutResults, setPayoutResults] = useState([]);
   
+  // Then, add the useEffect for auth
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(setUser);
+    return () => unsubscribe();
+  }, []);
+
+  // Then, add the loading check
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  // Then, add the auth check
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Auth onAuthStateChange={() => setUser(auth.currentUser)} />
+      </div>
+    );
+  }
 
   const handleCreateGroup = async (e) => {
     e.preventDefault();
@@ -29,7 +55,7 @@ function App() {
     }
   };
 
-  const handleAddPlayer = (e) => {
+  const handleAddPlayer = async (e) => {
     e.preventDefault();
     if (!playerName.trim() || !globalBuyInAmount || !selectedGroup) return;
     
@@ -39,64 +65,61 @@ function App() {
       buyIns: [Number(globalBuyInAmount)],
       totalBuyIn: Number(globalBuyInAmount)
     };
-
-    setGroups(prevGroups => 
-      prevGroups.map(group => {
-        if (group.id === selectedGroup.id) {
-          return {
-            ...group,
-            players: [...group.players, newPlayer]
-          };
-        }
-        return group;
-      })
-    );
-
-    setSelectedGroup(prevGroup => ({
-      ...prevGroup,
-      players: [...prevGroup.players, newPlayer]
-    }));
-
-    setPlayerName('');
-    setEndAmounts(prev => ({...prev, [newPlayer.id]: ''}));
+  
+    try {
+      // Use the addPlayer function from useFirebase
+      await addPlayer(selectedGroup.id, newPlayer);
+      
+      // Clear the player name input
+      setPlayerName('');
+      
+      // Update end amounts state
+      setEndAmounts(prev => ({...prev, [newPlayer.id]: ''}));
+      
+      // Update selected group (the hook will handle the groups state)
+      setSelectedGroup(prevGroup => ({
+        ...prevGroup,
+        players: [...prevGroup.players, newPlayer]
+      }));
+    } catch (error) {
+      console.error('Error adding player:', error);
+    }
   };
 
-  const handleBuyInChange = (groupId, playerId, amount, isAdding = true) => {
-    const updatePlayers = (players) => {
-      return players.map(player => {
-        if (player.id === playerId) {
-          const newBuyIns = isAdding 
-            ? [...player.buyIns, Number(amount)]
-            : player.buyIns.slice(0, -1);
-          
-          const newTotalBuyIn = newBuyIns.reduce((sum, buyIn) => sum + buyIn, 0);
-          
-          return {
-            ...player,
-            buyIns: newBuyIns,
-            totalBuyIn: newTotalBuyIn
-          };
-        }
-        return player;
-      });
-    };
-
-    setGroups(prevGroups => 
-      prevGroups.map(group => {
-        if (group.id === groupId) {
-          return {
-            ...group,
-            players: updatePlayers(group.players)
-          };
-        }
-        return group;
-      })
-    );
-
-    setSelectedGroup(prevGroup => ({
-      ...prevGroup,
-      players: updatePlayers(prevGroup.players)
-    }));
+  const handleBuyInChange = async (groupId, playerId, amount, isAdding = true) => {
+    try {
+      const group = groups.find(g => g.id === groupId);
+      if (!group) return;
+  
+      const player = group.players.find(p => p.id === playerId);
+      if (!player) return;
+  
+      const newBuyIns = isAdding 
+        ? [...player.buyIns, Number(amount)]
+        : player.buyIns.slice(0, -1);
+      
+      const newTotalBuyIn = newBuyIns.reduce((sum, buyIn) => sum + buyIn, 0);
+      
+      const updatedPlayer = {
+        ...player,
+        buyIns: newBuyIns,
+        totalBuyIn: newTotalBuyIn
+      };
+  
+      await updatePlayer(groupId, playerId, updatedPlayer);
+      
+      // Update selectedGroup to reflect changes
+      if (selectedGroup?.id === groupId) {
+        setSelectedGroup(prevGroup => ({
+          ...prevGroup,
+          players: prevGroup.players.map(p => 
+            p.id === playerId ? updatedPlayer : p
+          )
+        }));
+      }
+    } catch (error) {
+      console.error('Error updating buy-in:', error);
+    }
   };
 
   const handleEndAmountChange = (playerId, amount) => {
@@ -226,11 +249,24 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-7xl mx-auto flex gap-8">
+    {/* Add a sign out button in the header */}
+    <div className="bg-white shadow">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <h1 className="text-xl font-bold">GroupPot</h1>
+        <button
+          onClick={() => auth.signOut()}
+          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+        >
+          Sign Out
+        </button>
+      </div>
+    </div>
+    
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto flex gap-8">
           {/* Main content */}
           <div className="flex-1">
-            <h1 className="text-3xl font-bold mb-6">Poker Payout Calculator</h1>
+            <h1 className="text-3xl font-bold mb-6">GroupPot</h1>
 
             {/* Buy-in Amount Setting */}
             <div className="bg-white rounded-lg shadow p-6 mb-6">
