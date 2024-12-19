@@ -1,27 +1,32 @@
 import React, { useState } from 'react';
 import PokerTableDisplay from './components/PokerTableDisplay';
 import EndAmountTracker from './components/EndAmountTracker';
+import { useFirebase } from './hooks/useFirebase';
 
 function App() {
   const [groupName, setGroupName] = useState('');
-  const [groups, setGroups] = useState([]);
+  const { groups, loading, error, createGroup, updateGroup, addPlayer, updatePlayer } = useFirebase();e
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [playerName, setPlayerName] = useState('');
   const [globalBuyInAmount, setGlobalBuyInAmount] = useState('100');
   const [endAmounts, setEndAmounts] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [payoutResults, setPayoutResults] = useState([]);
+  
 
-  const handleCreateGroup = (e) => {
+  const handleCreateGroup = async (e) => {
     e.preventDefault();
     if (!groupName.trim()) return;
-    const newGroup = {
-      id: Date.now(),
-      name: groupName,
-      players: []
-    };
-    setGroups(prevGroups => [...prevGroups, newGroup]);
-    setGroupName('');
+    
+    try {
+      await createGroup({
+        name: groupName,
+        players: []
+      });
+      setGroupName('');
+    } catch (error) {
+      console.error('Error creating group:', error);
+    }
   };
 
   const handleAddPlayer = (e) => {
