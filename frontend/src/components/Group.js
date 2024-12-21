@@ -4,13 +4,16 @@ import { useFirebase } from '../hooks/useFirebase';
 
 // Group component for managing sessions
 export const Group = () => {
-    const navigate = useNavigate();
-    const { groupId } = useParams();
-    const { groups, createSession, deleteSession, deleteGroup } = useFirebase();
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [sessionToDelete, setSessionToDelete] = useState(null);
-    
-    const group = groups.find(g => g.id === groupId);
+  const navigate = useNavigate();
+  const { groupId } = useParams();
+  const { groups, createSession, deleteSession, deleteGroup, updateSession} = useFirebase();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState(null);
+  const [newSessionName, setNewSessionName] = useState('');
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [sessionToRename, setSessionToRename] = useState(null);
+  
+  const group = groups.find(g => g.id === groupId);
   
     const handleCreateSession = async () => {
       try {
@@ -83,38 +86,93 @@ export const Group = () => {
         </div>
   
         <div className="space-y-4">
-          {group.sessions?.map(session => (
-            <div
-              key={session.id}
-              className="bg-white rounded-lg shadow p-6"
-            >
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-xl font-semibold">{session.name}</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => navigate(`/group/${groupId}/session/${session.id}`)}
-                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                  >
-                    Open
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSessionToDelete(session);
-                      setShowDeleteConfirm(true);
-                    }}
-                    className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Players: {session.players?.length || 0}</span>
-                <span>{new Date(session.date).toLocaleDateString()}</span>
+        {group.sessions?.map(session => (
+          <div
+            key={session.id}
+            className="bg-white rounded-lg shadow p-6"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-xl font-semibold">{session.name}</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setSessionToRename(session);
+                    setNewSessionName(session.name);
+                    setShowRenameModal(true);
+                  }}
+                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                >
+                  Rename
+                </button>
+                <button
+                  onClick={() => navigate(`/group/${groupId}/session/${session.id}`)}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                >
+                  Open
+                </button>
+                <button
+                  onClick={() => {
+                    setSessionToDelete(session);
+                    setShowDeleteConfirm(true);
+                  }}
+                  className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
+                >
+                  Delete
+                </button>
               </div>
             </div>
-          ))}
+            <div className="flex justify-between text-gray-600">
+              <span>Players: {session.players?.length || 0}</span>
+              <span>{new Date(session.date).toLocaleDateString()}</span>
+            </div>
+          </div>
+        ))}
         </div>
+
+        {/* Rename Modal */}
+        {showRenameModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg w-full max-w-md p-6">
+              <h2 className="text-xl font-semibold mb-4">Rename Session</h2>
+              <input
+                type="text"
+                value={newSessionName}
+                onChange={(e) => setNewSessionName(e.target.value)}
+                placeholder="Enter new session name"
+                className="w-full px-3 py-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                autoFocus
+              />
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowRenameModal(false);
+                    setSessionToRename(null);
+                    setNewSessionName('');
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (newSessionName.trim() && sessionToRename) {
+                      updateSession(groupId, sessionToRename.id, {
+                        ...sessionToRename,
+                        name: newSessionName.trim()
+                      });
+                      setShowRenameModal(false);
+                      setSessionToRename(null);
+                      setNewSessionName('');
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
   
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm && sessionToDelete && (
