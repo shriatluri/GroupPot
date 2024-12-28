@@ -332,7 +332,7 @@ export const Session = () => {
     }
   };
 
-  if (!group || !session) return <div>Session not found</div>;
+  if (!group || !session) return <div className="dark:text-white">Session not found</div>;
 
   const totalPot = session.players?.reduce((sum, player) => sum + player.totalBuyIn, 0) || 0;
   const totalEntered = session.players?.reduce((sum, player) => {
@@ -343,24 +343,33 @@ export const Session = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      {/* Header */}
+      {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">{group.name}</h1>
-          <h2 className="text-xl text-gray-600 font-bold">{session.name}</h2>
-          <p className="text-gray-500">Session Duration: {sessionDuration}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {group.name}
+          </h1>
+          <h2 className="text-xl text-gray-600 dark:text-gray-300 font-bold">
+            {session.name}
+          </h2>
+          <p className="text-gray-500 dark:text-gray-400">
+            Session Duration: {sessionDuration}
+          </p>
         </div>
         <button
           onClick={() => navigate(`/group/${groupId}`)}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 
+            dark:bg-gray-600 dark:hover:bg-gray-700 transition-colors"
         >
           Back
         </button>
       </div>
 
       {/* Add Player Form */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h3 className="text-xl font-semibold mb-4">Add Player</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          Add Player
+        </h3>
         <form onSubmit={handleAddPlayer} className="space-y-4">
           <div className="flex gap-4">
             <input
@@ -368,7 +377,10 @@ export const Session = () => {
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               placeholder="Player name"
-              className="flex-1 px-3 py-2 border rounded"
+              className="flex-1 px-3 py-2 border rounded transition-colors
+                dark:bg-gray-700 dark:border-gray-600 dark:text-white 
+                dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 
+                focus:border-blue-500 dark:focus:ring-blue-400"
               required
             />
             <input
@@ -376,12 +388,18 @@ export const Session = () => {
               value={buyInAmount}
               onChange={(e) => setBuyInAmount(e.target.value)}
               placeholder="Buy-in amount"
-              className="w-32 px-3 py-2 border rounded"
+              className="w-32 px-3 py-2 border rounded transition-colors
+                dark:bg-gray-700 dark:border-gray-600 dark:text-white 
+                dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 
+                focus:border-blue-500 dark:focus:ring-blue-400"
               required
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 bg-blue-500 text-white rounded transition-colors
+                hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700
+                focus:outline-none focus:ring-2 focus:ring-blue-500 
+                focus:ring-offset-2 dark:focus:ring-offset-gray-800"
             >
               Add Player
             </button>
@@ -390,24 +408,39 @@ export const Session = () => {
       </div>
 
       {/* Totals Header */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Total Pot</h3>
-            <p className="text-2xl font-bold">${totalPot.toFixed(2)}</p>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              Total Pot
+            </h3>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              ${totalPot.toFixed(2)}
+            </p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Total Entered</h3>
-            <p className="text-2xl font-bold">${totalEntered.toFixed(2)}</p>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              Total Entered
+            </h3>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              ${totalEntered.toFixed(2)}
+            </p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Total Remaining</h3>
-            <p className="text-2xl font-bold">${totalRemaining.toFixed(2)}</p>
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              Total Remaining
+            </h3>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              ${totalRemaining.toFixed(2)}
+            </p>
           </div>
         </div>
         <button
           onClick={() => setShowPayouts(true)}
-          className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="w-full px-4 py-2 bg-green-500 text-white rounded transition-colors
+            hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700
+            focus:outline-none focus:ring-2 focus:ring-green-500 
+            focus:ring-offset-2 dark:focus:ring-offset-gray-800"
         >
           Calculate Interim Payouts
         </button>
@@ -416,72 +449,142 @@ export const Session = () => {
       {/* Players List */}
       <div className="space-y-4 mb-6">
         {session.players?.map(player => (
-          <div key={player.id} className="bg-white rounded-lg shadow p-6">
+          <div 
+            key={player.id} 
+            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 
+              transition-colors hover:shadow-md"
+          >
+            {/* Player Header */}
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
-                <h3 className="text-xl font-semibold">{player.name}</h3>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {player.name}
+                </h3>
                 {player.isHost && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-sm rounded">
+                  <span className="px-2 py-1 text-sm rounded
+                    bg-blue-100 text-blue-700 
+                    dark:bg-blue-900 dark:text-blue-300"
+                  >
                     Host
+                  </span>
+                )}
+                {player.isAccountant && (
+                  <span className="px-2 py-1 text-sm rounded
+                    bg-purple-100 text-purple-700 
+                    dark:bg-purple-900 dark:text-purple-300"
+                  >
+                    Accountant
                   </span>
                 )}
               </div>
               <button
                 onClick={() => handleRemovePlayer(player.id)}
-                className="text-red-500 hover:text-red-600"
+                className="text-red-500 hover:text-red-600 
+                  dark:text-red-400 dark:hover:text-red-300
+                  transition-colors focus:outline-none 
+                  focus:ring-2 focus:ring-red-500 focus:ring-offset-2 
+                  dark:focus:ring-offset-gray-800 rounded"
               >
                 Remove
               </button>
             </div>
+
+            {/* Player Details */}
             <div className="grid grid-cols-2 gap-4">
+              {/* Buy-in Section */}
               <div>
-                <p className="text-gray-600">Total Buy-in: ${player.totalBuyIn.toFixed(2)}</p>
-                <div className="flex gap-2 mt-2">
+                <p className="text-gray-600 dark:text-gray-300">
+                  Total Buy-in: ${player.totalBuyIn.toFixed(2)}
+                </p>
+                <div className="flex flex-wrap gap-2 mt-2">
                   <button
                     onClick={() => handleAddBuyIn(player.id)}
-                    className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
+                    className="px-3 py-1 rounded transition-colors
+                      bg-green-100 text-green-700 hover:bg-green-200 
+                      dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800
+                      focus:outline-none focus:ring-2 focus:ring-green-500 
+                      focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                   >
                     Add Buy-in (${buyInAmount})
                   </button>
                   {player.buyIns.length > 0 && (
                     <button
                       onClick={() => handleRemoveBuyIn(player.id)}
-                      className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
+                      className="px-3 py-1 rounded transition-colors
+                        bg-red-100 text-red-700 hover:bg-red-200 
+                        dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800
+                        focus:outline-none focus:ring-2 focus:ring-red-500 
+                        focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                     >
                       Remove Buy-in
                     </button>
                   )}
                 </div>
               </div>
+
+              {/* End Amount Section */}
               <div className="text-right">
-                <label className="block text-sm text-gray-600 mb-1">End Amount</label>
+                <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+                  End Amount
+                </label>
                 <input
                   type="number"
                   value={player.endAmount || ''}
                   onChange={(e) => handleUpdateEndAmount(player.id, e.target.value)}
-                  className="px-3 py-2 border rounded w-full"
+                  className="px-3 py-2 border rounded w-full transition-colors
+                    dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                    dark:focus:ring-blue-400 dark:placeholder-gray-400"
                   placeholder="0"
                 />
               </div>
             </div>
+
+            {/* Buy-ins History */}
+            {player.buyIns.length > 0 && (
+              <div className="mt-4 pt-4 border-t dark:border-gray-700">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Buy-in History:
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {player.buyIns.map((amount, index) => (
+                      <span 
+                        key={index}
+                        className="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700"
+                      >
+                        ${amount}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       {/* End Session Section */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h3 className="text-xl font-semibold mb-4">End Session Details</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          End Session Details
+        </h3>
 
         {/* Accountant Selection */}
-        <div className="mb-6">
-          <h4 className="text-lg font-medium mb-4">GroupPot Accountant</h4>
+        <div className="mb-8">
+          <h4 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">
+            GroupPot Accountant
+          </h4>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Select Accountant</label>
+              <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+                Select Accountant
+              </label>
               <select
                 value={accountantId || ''}
                 onChange={(e) => handleSetAccountant(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded transition-colors
+                  dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                  dark:focus:ring-blue-400"
               >
                 <option value="">Select Accountant</option>
                 {session.players?.map(player => (
@@ -492,9 +595,12 @@ export const Session = () => {
               </select>
             </div>
             {accountantId && (
-              <div className="text-sm text-gray-600">
-                <p>Selected accountant will:</p>
-                <ul className="list-disc ml-5 mt-2">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg
+                border border-blue-100 dark:border-blue-800">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Selected accountant will:
+                </p>
+                <ul className="list-disc ml-5 mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-300">
                   <li>Pay GroupPot fee of ${(session.players?.length || 0) * 5}</li>
                   <li>Collect $5 from each player</li>
                 </ul>
@@ -504,14 +610,21 @@ export const Session = () => {
         </div>
 
         {/* Host Selection */}
-        <div className="mb-6">
-          <h4 className="text-lg font-medium mb-4">Host Selection</h4>
+        <div className="mb-8">
+          <h4 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">
+            Host Selection
+          </h4>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Select Host</label>
+            <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+              Select Host
+            </label>
             <select
               value={hostId || ''}
               onChange={(e) => handleSetHost(e.target.value)}
-              className="w-full px-3 py-2 border rounded"
+              className="w-full px-3 py-2 border rounded transition-colors
+                dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                dark:focus:ring-blue-400"
             >
               <option value="">Select Host</option>
               {session.players?.map(player => (
@@ -522,66 +635,71 @@ export const Session = () => {
             </select>
           </div>
         </div>
-              
+
         {/* Catering Section */}
-        <div className="mb-6">
-          <h4 className="text-lg font-medium mb-4">Catering Details</h4>
+        <div className="mb-8">
+          <h4 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">
+            Catering Details
+          </h4>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Catering Amount</label>
+              <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
+                Catering Amount
+              </label>
               <input
                 type="number"
                 value={cateringAmount}
                 onChange={(e) => handleUpdateCatering(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded transition-colors
+                  dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                  dark:focus:ring-blue-400 dark:placeholder-gray-400"
                 placeholder="0"
               />
             </div>
 
             {Number(cateringAmount) > 0 && (
               <>
-                <div className="flex items-center space-x-2">
-                  <label className="text-sm text-gray-600">Host Payment:</label>
-                  <select
-                    value={hostPays.toString()}
-                    onChange={(e) => setHostPays(e.target.value === 'true')}
-                    className="px-3 py-2 border rounded"
-                  >
-                    <option value="true">Host Pays Equal Share</option>
-                    <option value="false">Host Doesn't Pay</option>
-                  </select>
-                </div>
-
-                {!hostPays && (
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Select Host</label>
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg
+                  border border-yellow-100 dark:border-yellow-800">
+                  <div className="flex items-center space-x-2">
+                    <label className="text-sm text-gray-600 dark:text-gray-300">
+                      Host Payment:
+                    </label>
                     <select
-                      value={hostId || ''}
-                      onChange={(e) => handleSetHost(e.target.value)}
-                      className="w-full px-3 py-2 border rounded"
+                      value={hostPays.toString()}
+                      onChange={(e) => setHostPays(e.target.value === 'true')}
+                      className="flex-1 px-3 py-2 border rounded transition-colors
+                        dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                        dark:focus:ring-blue-400"
                     >
-                      <option value="">Select Host</option>
-                      {session.players?.map(player => (
-                        <option key={player.id} value={player.id}>
-                          {player.name}
-                        </option>
-                      ))}
+                      <option value="true">Host Pays Equal Share</option>
+                      <option value="false">Host Doesn't Pay</option>
                     </select>
+                    </div>
+
+                    {!hostPays && !hostId && (
+                      <p className="mt-2 text-sm text-yellow-600 dark:text-yellow-400">
+                        Please select a host in the Host Selection section above to handle catering expenses
+                      </p>
+                    )}
                   </div>
-                )}
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
-        </div>
 
         <button
           onClick={() => setShowPayouts(true)}
           disabled={!accountantId}
-          className={`w-full px-4 py-2 text-white rounded ${
-            accountantId 
-            ? "bg-green-500 hover:bg-green-600" 
-            : "bg-gray-300 cursor-not-allowed"
-          }`}
+          className={`w-full px-4 py-2 text-white rounded transition-colors
+            focus:outline-none focus:ring-2 focus:ring-offset-2 
+            dark:focus:ring-offset-gray-800
+            ${accountantId 
+              ? "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 focus:ring-green-500" 
+              : "bg-gray-300 dark:bg-gray-600 cursor-not-allowed"
+            }`}
         >
           {!accountantId 
             ? "Select an Accountant to Calculate Payouts" 
@@ -589,18 +707,25 @@ export const Session = () => {
         </button>
       </div>
 
-      {/* Payouts Modal */}
-      {showPayouts && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
-            {/* Header - fixed */}
-            <div className="p-6 border-b">
+        {/* Payouts Modal */}
+        {showPayouts && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col
+            shadow-xl relative animate-fadeIn">
+            {/* Header */}
+            <div className="p-6 border-b dark:border-gray-700">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Payouts</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Payouts
+                </h2>
                 <button
                   onClick={() => setShowPayouts(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 
+                    dark:hover:text-gray-300 transition-colors rounded-full p-1
+                    hover:bg-gray-100 dark:hover:bg-gray-700
+                    focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
                 >
+                  <span className="sr-only">Close</span>
                   ✕
                 </button>
               </div>
@@ -609,73 +734,123 @@ export const Session = () => {
             {/* Content - scrollable */}
             <div className="flex-1 overflow-y-auto p-6">
               {(() => {
-                const { balances, payouts, error } = getCalculations();
+                const { balances, payouts, error, groupPotFeeTotal } = getCalculations();
                 
                 if (error) {
                   return (
-                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-red-600">{error}</p>
+                    <div className="p-4 bg-red-50 dark:bg-red-900/50 border border-red-200 
+                      dark:border-red-800 rounded-lg">
+                      <p className="text-red-600 dark:text-red-400">
+                        {error}
+                      </p>
                     </div>
                   );
                 }
 
                 return (
-                  <>
+                  <div className="space-y-6">
+                    {/* Player Balances */}
                     <div>
-                      <h3 className="text-lg font-semibold mb-2">Player Balances</h3>
-                      <div className="space-y-2 mb-6">
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
+                        Player Balances
+                      </h3>
+                      <div className="space-y-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
                         {Object.entries(balances).map(([name, balance]) => (
-                          <div key={name} className="flex justify-between">
-                            <span>{name}</span>
-                            <span className={balance >= 0 ? 'text-green-600' : 'text-red-600'}>
+                          <div key={name} className="flex justify-between items-center">
+                            <span className="font-medium text-gray-900 dark:text-white">
+                              {name}
+                            </span>
+                            <span className={`font-medium ${
+                              balance >= 0 
+                                ? 'text-green-600 dark:text-green-400' 
+                                : 'text-red-600 dark:text-red-400'
+                            }`}>
                               {balance >= 0 ? '+' : ''}{balance.toFixed(2)}
                             </span>
                           </div>
                         ))}
                       </div>
+                    </div>
 
-                      <h3 className="text-lg font-semibold mb-2">Payment Instructions</h3>
+                    {/* Payment Instructions */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
+                        Payment Instructions
+                      </h3>
                       <div className="space-y-3">
-                        {/* Only show GroupPot fee for accountant */}
+                        {/* GroupPot Fee Section */}
                         {accountantId && (
-                          <div className="p-3 bg-gray-50 rounded border border-gray-200">
-                            <span className="font-semibold text-blue-600">
-                              {session.players.find(p => p.id === accountantId)?.name}
-                            </span>
-                            {' owes GroupPot '}
-                            <span className="font-semibold">${(session.players?.length || 0) * 5}</span>
+                          <div className="mb-6 p-5 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl
+                            border-l-4 border-indigo-500 dark:border-indigo-400">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-indigo-600 dark:text-indigo-300">
+                                  {session.players.find(p => p.id === accountantId)?.name}
+                                </span>
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  collects GroupPot fee:
+                                </span>
+                                <span className="font-bold text-gray-900 dark:text-white text-lg">
+                                  ${groupPotFeeTotal}
+                                </span>
+                              </div>
+                              <span className="text-sm bg-indigo-100 dark:bg-indigo-800/50 px-3 py-1 rounded-full text-indigo-600 dark:text-indigo-300">
+                                $5 per player
+                              </span>
+                            </div>
                           </div>
                         )}
                         
-                        {/* Game payouts (including GroupPot fees in calculations) */}
-                        {payouts.length > 0 ? (
-                          payouts.map((payout, index) => (
-                            <div
-                              key={index}
-                              className="p-3 bg-gray-50 rounded border border-gray-200"
-                            >
-                              <span className="font-semibold text-red-600">{payout.from}</span>
-                              {' owes '}
-                              <span className="font-semibold text-green-600">{payout.to}</span>
-                              {' $'}
-                              <span className="font-semibold">{payout.amount}</span>
+                        {/* Game Payouts */}
+                        <div className="space-y-3">
+                          {payouts.length > 0 ? (
+                            payouts.map((payout, index) => (
+                              <div
+                                key={index}
+                                className="p-5 bg-gray-50 dark:bg-gray-800 rounded-xl
+                                  border-l-4 border-gray-300 dark:border-gray-600
+                                  hover:shadow-lg transition-all duration-200"
+                              >
+                                <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-red-600 dark:text-red-400">
+                                    {payout.from}
+                                  </span>
+                                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                                    pays
+                                  </span>
+                                  <span className="font-semibold text-green-600 dark:text-green-400">
+                                    {payout.to}
+                                  </span>
+                                </div>
+                                  <span className="font-bold text-lg text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">
+                                    ${payout.amount}
+                                  </span>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                              No payouts needed
                             </div>
-                          ))
-                        ) : (
-                          <p className="text-gray-500">No payouts needed</p>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </>
+                  </div>
                 );
               })()}
             </div>
 
-            {/* Footer - fixed */}
-            <div className="p-6 border-t">
+            {/* Footer */}
+            <div className="p-6 border-t dark:border-gray-700">
               <button
                 onClick={() => setShowPayouts(false)}
-                className="w-full px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                className="w-full px-4 py-2 bg-gray-500 text-white rounded
+                  hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700
+                  transition-colors focus:outline-none focus:ring-2 
+                  focus:ring-gray-500 focus:ring-offset-2
+                  dark:focus:ring-offset-gray-800"
               >
                 Close
               </button>
